@@ -1,8 +1,11 @@
 import { transpose, trim } from 'ramda';
 import { readInput } from './utils';
 
-type Row = [number, number, number, number, number];
-type Board = [Row, Row, Row, Row, Row];
+const BOARD_SIZE = 5;
+
+type TupleOf<T, Len, Acc extends unknown[] = []> = Acc['length'] extends Len ? Acc : TupleOf<T, Len, [...Acc, T]>;
+type Row = TupleOf<number, typeof BOARD_SIZE>;
+type Board = TupleOf<Row, typeof BOARD_SIZE>;
 type WinningBoard = { board: Board; matchingNumbers: number[] };
 
 const parseBoards = (boards: Board[], lines: string[]): Board[] => {
@@ -11,10 +14,10 @@ const parseBoards = (boards: Board[], lines: string[]): Board[] => {
   }
 
   const board = lines
-    .slice(0, 5)
+    .slice(0, BOARD_SIZE)
     .map((line) => line.split(/\s+/g).filter(trim).map(Number)) as Board;
 
-  return parseBoards([...boards, board], lines.slice(5));
+  return parseBoards([...boards, board], lines.slice(BOARD_SIZE));
 };
 
 const readBoards = async () => {
