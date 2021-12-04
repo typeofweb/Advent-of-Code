@@ -1,0 +1,15 @@
+{
+  "name": "1ts",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@types/node": "16.11.11",
+    "@types/ramda": "0.27.57",
+    "folktale": "2.3.2",
+    "ramda": "0.27.1",
+    "ts-node": "10.4.0",
+    "typescript": "4.5.2"
+  },
+  "scripts": {}
+}
