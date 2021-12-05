@@ -21,8 +21,7 @@ const incVentsMap = (y: number, x: number, map: VentsMap): VentsMap =>
     y,
     setAt(x, (el: number) => el + 1),
   )(map);
-const move = ([from, to]: Point): number =>
-  from === to ? from : from > to ? from - 1 : from + 1;
+const move = ([from, to]: Point): number => from + Math.sign(to-from)
 
 const movePoints = ([[fromX, fromY], [toX, toY]]: [Point, Point]): [
   Point,
