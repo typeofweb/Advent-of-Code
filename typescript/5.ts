@@ -16,26 +16,23 @@ const setAt =
   <T>(idx: number, setter: (el: T) => T) =>
   (arr: T[]) =>
     arr.map((el, i) => (i === idx ? setter(el) : el));
-const incVentsMap = (y: number, x: number, map: VentsMap): VentsMap =>
-  setAt(
-    y,
-    setAt(x, (el: number) => el + 1),
-  )(map);
-const move = ([from, to]: Point): number => from + Math.sign(to-from)
+const inc = (el: number) => el + 1;
+
+const incVentsMap = (y: number, x: number) => setAt(y, setAt(x, inc));
+const move = ([from, to]: Point): number => from + Math.sign(to - from);
 
 const movePoints = ([[fromX, fromY], [toX, toY]]: [Point, Point]): [
   Point,
   Point,
-] => {
-  return [
-    [move([fromX, toX]), move([fromY, toY])],
-    [toX, toY],
-  ];
-};
+] => [
+  [move([fromX, toX]), move([fromY, toY])],
+  [toX, toY],
+];
+
 const repeat =
-  (getNewMap: (x: number, y: number, map: VentsMap) => VentsMap) =>
+  (getNewMap: (x: number, y: number) => (map: VentsMap) => VentsMap) =>
   (map: VentsMap, [[fromX, fromY], [toX, toY]]: [Point, Point]): VentsMap => {
-    const newMap = getNewMap(fromX, fromY, map);
+    const newMap = getNewMap(fromX, fromY)(map);
     return fromX === toX && fromY === toY
       ? newMap
       : repeat(getNewMap)(
@@ -50,10 +47,7 @@ const repeat =
 const getMapSize = (vents: Vent[]): [number, number] =>
   vents.reduce(
     ([maxX, maxY], [[fromX, fromY], [toX, toY]]) => {
-      return [
-        Math.max(maxX, fromX + 1, toX + 1),
-        Math.max(maxY, fromY + 1, toY + 1),
-      ];
+      return [Math.max(maxX, fromX, toX), Math.max(maxY, fromY, toY)];
     },
     [0, 0],
   );
@@ -72,7 +66,10 @@ const readVents = async () => {
   const vents = await readVents();
   const [maxX, maxY] = getMapSize(vents);
 
-  const emptyMap: VentsMap = arrayOf(maxY, arrayOf(maxX, constant(0)))();
+  const emptyMap: VentsMap = arrayOf(
+    maxY + 1,
+    arrayOf(maxX + 1, constant(0)),
+  )();
 
   const filledMap = vents.reduce(repeat(incVentsMap), emptyMap);
 
