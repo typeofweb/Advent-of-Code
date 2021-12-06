@@ -5,7 +5,8 @@ type Vent = [from: Point, to: Point];
 type VentsMap = number[][];
 
 const arrayOf =
-  <T>(length: number, fill: () => T) =>
+  <T>(fill: () => T) =>
+  (length: number) =>
   (): T[] =>
     Array.from({ length }, fill);
 const constant =
@@ -19,7 +20,7 @@ const setAt =
 const inc = (el: number) => el + 1;
 
 const incVentsMap = (y: number, x: number) => setAt(y, setAt(x, inc));
-const move = ([from, to]: Point): number => from + Math.sign(to - from);
+const move = ([from, to]: Point) => from + Math.sign(to - from);
 
 const movePoints = ([[fromX, fromY], [toX, toY]]: [Point, Point]): [
   Point,
@@ -66,12 +67,9 @@ const readVents = async () => {
   const vents = await readVents();
   const [maxX, maxY] = getMapSize(vents);
 
-  const emptyMap: VentsMap = arrayOf(
-    maxY + 1,
-    arrayOf(maxX + 1, constant(0)),
-  )();
+  const emptyMap = arrayOf(arrayOf(constant(0))(maxX + 1))(maxY + 1);
 
-  const filledMap = vents.reduce(repeat(incVentsMap), emptyMap);
+  const filledMap = vents.reduce(repeat(incVentsMap), emptyMap());
 
   console.log(filledMap.flat().filter((v) => v > 1).length);
 })();
