@@ -1,10 +1,6 @@
 import { readInput } from './utils';
 
-const arrayOf =
-  <T>(fill: (i: number) => T) =>
-  (length: number) =>
-  (): T[] =>
-    Array.from({ length }, (_, idx) => fill(idx));
+import { pipe, A, N } from '@mobily/ts-belt';
 
 /**
  * @description part 1
@@ -23,13 +19,6 @@ const arrayOf =
 
   console.log(result);
 })();
-
-const sum = (a: number, b: number) => a + b;
-
-const add = (a: number) => (b: number) => a + b;
-
-const subtract = (a: number) => (b: number) => a - b;
-
 /**
  * @description part 2
  */
@@ -41,17 +30,18 @@ const subtract = (a: number) => (b: number) => a - b;
   const min = Math.min(...data);
   const max = Math.max(...data);
 
-  const possibilities = arrayOf((i) => {
-    const targetPosition = i + min;
-    return data
-      .map(subtract(targetPosition))
-      .map(Math.abs)
-      .map(add(1))
-      .map(fuelBurn)
-      .reduce(sum);
-  })(max - min + 1)();
+  const possibilities = A.makeWithIndex(max - min + 1, (i) =>
+    pipe(
+      data,
+      A.map(N.subtract(i + min)),
+      A.map(Math.abs),
+      A.map(N.add(1)),
+      A.map(fuelBurn),
+      A.reduce(0 as number, N.add),
+    ),
+  );
 
   const leastFuel = Math.min(...possibilities);
-  
-  console.log(leastFuel)
+
+  console.log(leastFuel);
 })();
