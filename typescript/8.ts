@@ -1,19 +1,7 @@
-import { readInput } from './utils';
+import { DFlip, readInput } from './utils';
 import { A, N, O, S, D, F, R, B, G, pipe } from '@mobily/ts-belt';
 
 const stringComparator = (a: string, b: string) => a.localeCompare(b);
-
-const OToBool = <T>(opt: O.Option<T>) =>
-  O.match(opt, F.truthy, F.falsy) as [T] extends [never] ? false : true;
-
-const Otap =
-  <T>(tapFn: (value: T) => void) =>
-  (option: O.Option<T>): O.Option<T> => {
-    O.match(option, tapFn, F.ignore);
-    return option;
-  };
-
-const AFlip = <A, B>([a, b]: readonly [A, B]): readonly [B, A] => [b, a];
 
 type Digit = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 type KnownDigits = Partial<Record<Digit, string>>;
@@ -91,13 +79,7 @@ const order = [1, 7, 4, 8, 3, 9, 0, 5, 6, 2] as const;
       ),
     );
 
-    const inputToDigit = pipe(
-      input,
-      matchNumbersAgainstInput,
-      D.toPairs,
-      A.map(AFlip),
-      D.fromPairs,
-    );
+    const inputToDigit = pipe(input, matchNumbersAgainstInput, DFlip);
 
     const result = pipe(
       numberToDecode,
