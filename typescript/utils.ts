@@ -49,3 +49,11 @@ export const setAdd = <T>(s1: Set<T>, v: T): Set<T> => new Set([...s1, v]);
 
 export const isNegative = (x: number) => x < 0;
 export const isGreaterThan = (a: number) => (b: number) => b > a;
+
+export function mapGetUnsafe<K, V>(map: Map<K, V>): (key: K) => V;
+export function mapGetUnsafe<K extends object, V>(
+  map: WeakMap<K, V>,
+): (key: K) => V;
+export function mapGetUnsafe(map: Map<any, unknown> | WeakMap<any, unknown>) {
+  return (key: unknown) => map.get(key)!;
+}

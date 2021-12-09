@@ -8,6 +8,7 @@ import {
   AtapWithIndex,
   isGreaterThan,
   isNegative,
+  mapGetUnsafe,
 } from './utils';
 
 /**
@@ -53,7 +54,7 @@ import {
     return pipe(
       point,
       getNeighboursFor,
-      A.map((p) => board.get(p)!),
+      A.map(mapGetUnsafe(board)),
       A.every(isGreaterThan(height)),
     );
   })(board);
@@ -73,7 +74,7 @@ import {
       (visited: Set<Point>) =>
       (point: Point): Set<Point> => {
         if (memo.has(point)) {
-          return memo.get(point)!;
+          return mapGetUnsafe(memo)(point);
         }
 
         if (board.get(point) === 9 || visited.has(point)) {
