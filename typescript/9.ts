@@ -1,4 +1,6 @@
 import { A, D, F, N, O, pipe, S } from '@mobily/ts-belt';
+import { Tuple } from '@bloomberg/record-tuple-polyfill';
+
 import {
   readInput,
   setAdd,
@@ -12,13 +14,19 @@ import {
  * @description part 1 & 2
  */
 (async () => {
-  type Point = readonly [x: number, y: number];
-  type Board = readonly (readonly number[])[];
+  type Point = Tuple<[x: number, y: number]>;
+  type Board = Map<Point, number>;
 
   const board: Board = pipe(
     await readInput(9),
     A.map(S.split('')),
-    A.map(A.map(Number)),
+    A.mapWithIndex((xs, y) => A.mapWithIndex(xs, (h, x) => ({ h, x, y }))),
+    A.flat,
+    A.reduce(
+      new Map(),
+      (board: Board, { h, x, y }) =>
+        new Map([...board.entries(), [Tuple(x, y), Number(h)]]),
+    ),
   );
 
   const getNeighboursFor = (
@@ -27,17 +35,16 @@ import {
       return pipe(
         [
           // [x - 1, y - 1],
-          [x, y - 1],
+          Tuple(x, y - 1),
           // [x + 1, y - 1],
-          [x - 1, y],
+          Tuple(x - 1, y),
           // [x, y],
-          [x + 1, y],
+          Tuple(x + 1, y),
           // [x - 1, y + 1],
-          [x, y + 1],
+          Tuple(x, y + 1),
           // [x + 1, y + 1],
         ],
-        A.reject<Point>(A.some(isNegative)),
-        A.reject<Point>(([x, y]) => y >= board.length || x >= board[0].length),
+        A.filter((p) => board.has(p)),
       );
     }
   )(board);
@@ -46,46 +53,43 @@ import {
     return pipe(
       point,
       getNeighboursFor,
-      A.map(([x, y]) => board[y][x]),
+      A.map((p) => board.get(p)!),
       A.every(isGreaterThan(height)),
     );
   })(board);
 
-  const lowPoints = pipe(
+  const lowPoints: readonly Point[] = pipe(
     board,
-    A.mapWithIndex((xs, y) =>
-      A.mapWithIndex(xs, (height, x): Point[] =>
-        isLowPoint(height, [x, y]) ? [[x, y]] : [],
-      ),
-    ),
-    A.flat,
+    (board) => Array.from(board.entries()),
+    A.map(([point, height]) => (isLowPoint(height, point) ? [point] : [])),
     A.flat,
     A.reject(A.isEmpty),
   );
 
-  const hashPoint = ([x, y]: Point): string => `${x}_${y}`;
-
   const bucketFill = (board: Board) => (lowPoint: Point) => {
-    const memo: Record<string, Set<string>> = {};
+    const memo: WeakMap<Point, Set<Point>> = new WeakMap();
 
     const work =
-      (visited: Set<string>) =>
-      ([x, y]: Point): Set<string> => {
-        const hash = hashPoint([x, y]);
-        if (memo[hash]) {
-          return memo[hash];
+      (visited: Set<Point>) =>
+      (point: Point): Set<Point> => {
+        if (memo.has(point)) {
+          return memo.get(point)!;
         }
 
-        if (board[y][x] === 9 || visited.has(hash)) {
-          return (memo[hash] = visited);
+        if (board.get(point) === 9 || visited.has(point)) {
+          memo.set(point, visited);
+          return visited;
         }
 
-        return (memo[hash] = pipe(
-          getNeighboursFor([x, y]),
-          A.map(work(setAdd(visited, hash))),
+        const result = pipe(
+          getNeighboursFor(point),
+          A.map(work(setAdd(visited, point))),
           A.flat,
           A.reduce(visited, setMerge),
-        ));
+        );
+
+        memo.set(point, result);
+        return result;
       };
 
     return work(new Set())(lowPoint).size;

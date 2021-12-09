@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "@bloomberg/record-tuple-polyfill": "0.0.4",
     "@mobily/ts-belt": "3.0.0",
     "@types/node": "16.11.11",
     "@types/ramda": "0.27.57",

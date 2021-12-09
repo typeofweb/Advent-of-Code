@@ -39,9 +39,8 @@ export const Otap =
 
 export const AFlip = <A, B>([a, b]: readonly [A, B]): readonly [B, A] => [b, a];
 
-export const DFlip = <A extends string, B extends string>(
-  obj: Record<A, B>,
-): Record<B, A> => pipe(obj, D.toPairs, A.map(AFlip), D.fromPairs);
+export const DFlip = <A extends string, B extends string>(obj: Record<A, B>) =>
+  pipe(obj, D.toPairs, A.map(AFlip), D.fromPairs) as Record<B, A>;
 
 export const setMerge = <T>(s1: Set<T>, s2: Set<T>): Set<T> =>
   new Set([...s1, ...s2]);
