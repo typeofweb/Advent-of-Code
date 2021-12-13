@@ -19,10 +19,10 @@
   dependencies:
     "@cspotcode/source-map-consumer" "0.8.0"
 
-"@mobily/ts-belt@3.2.0":
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/@mobily/ts-belt/-/ts-belt-3.2.0.tgz#25b595b70dfacebf0c40000466e17b9f8d3e9861"
-  integrity sha512-mWpJi64BE/cHnIfXFboyTKnM8fHVa17btOlwToLq3smtX4MSyBiZXBR7yjWWNMgml8yU8/nctbF0LkM9IpwUcg==
+"@mobily/ts-belt@3.3.0":
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/@mobily/ts-belt/-/ts-belt-3.3.0.tgz#638c204ceb4aa16565d64d2618205d49ad279872"
+  integrity sha512-MUVjk3Ngd1yDBCmdwF8PVow0bDqgnNp9rpgNBeFnSWVo6dYMDTLnhDzHhsm+pRzf4dhhWEvyLkFYWmmqlt4V7w==
 
 "@tsconfig/node10@^1.0.7":
   version "1.0.8"

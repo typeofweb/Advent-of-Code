@@ -12,7 +12,7 @@ const print = (points: Board) => {
   console.log(
     A.makeWithIndex(maxY, (y) =>
       A.makeWithIndex(maxX, (x) =>
-        points.includes(Tuple(x, y)) ? '#' : 'o',
+        points.includes(Tuple(x, y)) ? '█' : ' ',
       ).join(''),
     ).join('\n'),
   );
@@ -42,26 +42,13 @@ const print = (points: Board) => {
     // // part 1
     // A.take(1),
     A.reduce(coordinates, (acc: Board, [axis, value]) => {
-      // print(acc);
-      console.log(`\nFolding by ${axis}=${value}…`);
-      return A.uniqBy(
-        A.map(acc, ([x, y]) => {
-          if (axis === 'y') {
-            if (y > value) {
-              return Tuple(x, value - (y - value));
-            } else {
-              return Tuple(x, y);
-            }
-          } else {
-            if (x > value) {
-              return Tuple(value - (x - value), y);
-            } else {
-              return Tuple(x, y);
-            }
-          }
-        }),
-        ([x, y]) => `${x}_${y}`,
-      );
+      return A.map(acc, ([x, y]) => {
+        if (axis === 'y') {
+          return y > value ? Tuple(x, value - (y - value)) : Tuple(x, y);
+        } else {
+          return x > value ? Tuple(value - (x - value), y) : Tuple(x, y);
+        }
+      });
     }),
   );
 
