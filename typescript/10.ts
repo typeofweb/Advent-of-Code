@@ -1,6 +1,11 @@
 import { A, B, D, F, G, N, pipe, S } from '@mobily/ts-belt';
 import { Atap, readInput } from './utils';
 
+type Result = {
+  stack: readonly string[];
+  found?: string | undefined;
+};
+
 const OPENING = '([{<';
 const CLOSING = ')]}>';
 
@@ -19,11 +24,8 @@ const findFirstInvalid = (str: string) =>
       {
         stack: [],
         found: undefined,
-      } as {
-        stack: readonly string[];
-        found?: string | undefined;
       },
-      ({ found, stack }, char) => {
+      ({ found, stack }: Result, char) => {
         // console.log({ stack, char });
         if (found) {
           return { stack, found };

@@ -21,7 +21,7 @@ import {
   const board: Board = pipe(
     await readInput(9),
     A.map(S.split('')),
-    A.mapWithIndex((xs, y) => A.mapWithIndex(xs, (h, x) => ({ h, x, y }))),
+    A.mapWithIndex((y, xs) => A.mapWithIndex(xs, (x, h) => ({ h, x, y }))),
     A.flat,
     A.reduce(
       new Map(),
