@@ -43,18 +43,21 @@ const getTemplateMap = (template: string): TemplateMap => {
       return templateMap;
     }
 
-    const newMap = new Map();
-    for (const [pair, value] of templateMap) {
-      if (insertionsMap.has(pair)) {
-        const ins = insertionsMap.get(pair)!;
-        const pair1 = Tuple(pair[0], ins);
-        const pair2 = Tuple(ins, pair[1]);
-        newMap.set(pair1, (newMap.get(pair1) || 0) + value);
-        newMap.set(pair2, (newMap.get(pair2) || 0) + value);
-      } else {
-        newMap.set(pair, (newMap.get(pair) || 0) + value);
-      }
-    }
+    const newMap = pipe(
+      Array.from(templateMap),
+      A.reduce(new Map(), (newMap, [pair, value]) => {
+        if (insertionsMap.has(pair)) {
+          const ins = insertionsMap.get(pair)!;
+          const pair1 = Tuple(pair[0], ins);
+          const pair2 = Tuple(ins, pair[1]);
+          newMap.set(pair1, (newMap.get(pair1) || 0) + value);
+          newMap.set(pair2, (newMap.get(pair2) || 0) + value);
+        } else {
+          newMap.set(pair, (newMap.get(pair) || 0) + value);
+        }
+        return newMap;
+      }),
+    );
     return step(newMap, no - 1);
   };
 
