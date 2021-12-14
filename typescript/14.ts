@@ -3,30 +3,17 @@ import { A, D, F, O, pipe, S } from '@mobily/ts-belt';
 import { readInput } from './utils';
 
 const makeTuple = <T extends readonly unknown[]>(args: T) => Tuple(...args);
-type InsertionsMap = ReadonlyMap<Tuple<[string, string]>, string>;
+type Pair = Tuple<readonly [string, string]>;
+type InsertionsMap = ReadonlyMap<Pair, string>;
+type TemplateMap = ReadonlyMap<Pair, number>;
 
-const getTemplatePairs = (t: string) => {
-  const template = pipe(t, S.split(''));
-  return pipe(template, A.zip(A.drop(template, 1)));
-};
-
-const step = (template: string, insertionsMap: InsertionsMap): string => {
-  const templatePairs = getTemplatePairs(template);
-
+const getTemplateMap = (template: string): TemplateMap => {
+  const tmp = pipe(template, S.split(''));
   return pipe(
-    templatePairs,
-    A.map((pair) =>
-      insertionsMap.has(makeTuple(pair))
-        ? [
-            [pair[0], insertionsMap.get(makeTuple(pair))!],
-            [insertionsMap.get(makeTuple(pair))!],
-            pair[1],
-          ]
-        : [pair],
-    ),
-    A.flat,
-    A.flat,
-    A.join(''),
+    tmp,
+    A.zip(A.drop(tmp, 1)),
+    A.map((pair) => [makeTuple(pair) as Pair, 1 as number] as const),
+    (pairs) => new Map(pairs),
   );
 };
 
@@ -46,33 +33,57 @@ const step = (template: string, insertionsMap: InsertionsMap): string => {
         ],
     ),
     A.reduce(
-      new Map<Tuple<[string, string]>, string>(),
-      (map, element) => new Map([...map.entries(), element]),
+      new Map(),
+      (map: InsertionsMap, element) => new Map([...map.entries(), element]),
     ),
   );
 
-  const solve = (n: number, t = template): string => {
-    const result = step(t, insertionsMap);
-    return n === 1 ? result : solve(n - 1, result);
+  const step = (templateMap: TemplateMap, no: number): TemplateMap => {
+    if (no === 0) {
+      return templateMap;
+    }
+
+    const newMap = new Map();
+    for (const [pair, value] of templateMap) {
+      if (insertionsMap.has(pair)) {
+        const ins = insertionsMap.get(pair)!;
+        const pair1 = Tuple(pair[0], ins);
+        const pair2 = Tuple(ins, pair[1]);
+        newMap.set(pair1, (newMap.get(pair1) || 0) + value);
+        newMap.set(pair2, (newMap.get(pair2) || 0) + value);
+      } else {
+        newMap.set(pair, (newMap.get(pair) || 0) + value);
+      }
+    }
+    return step(newMap, no - 1);
   };
 
-  const result = solve(2);
-
-  const elementsByOccurences = pipe(
-    result,
-    S.split(''),
-    A.groupBy(F.identity),
-    D.map((xs) => xs?.length || 0),
-    D.toPairs,
-    A.sort((as, bs) => as[1] - bs[1]),
+  const result = step(getTemplateMap(template), 40);
+  const entries = Array.from(result.entries());
+  const [lhs, rhs] = pipe(
+    entries,
+    A.reduce(
+      [new Map<string, number>(), new Map<string, number>()],
+      ([lhs, rhs], [[a, b], value]) => {
+        lhs.set(a, (lhs.get(a) || 0) + value);
+        rhs.set(b, (rhs.get(b) || 0) + value);
+        return [lhs, rhs];
+      },
+    ),
+  );
+  console.log(result);
+  const allElements = pipe(
+    [...new Set([...lhs.keys(), ...rhs.keys()])],
+    A.map((element) => {
+      const l = lhs.get(element) || 0;
+      const r = rhs.get(element) || 0;
+      return [element, l > r ? l : r] as const;
+    }),
+    (xs) => new Map(xs),
   );
 
-  // console.log(elementsByOccurences);
-
-  const mostCommon = O.getExn(A.last(elementsByOccurences))[1];
-  const leastCommon = O.getExn(A.head(elementsByOccurences))[1];
-
-  // console.log(solve(5).length);
-  // console.log(solve(10).length);
-  console.log(mostCommon - leastCommon);
+  console.log(allElements);
+  const min = Math.min(...allElements.values());
+  const max = Math.max(...allElements.values());
+  console.log(max - min);
 })();
