@@ -3,17 +3,6 @@ import { A, D, N, pipe, S } from '@mobily/ts-belt';
 import { readInput } from './utils';
 import { Graph, astar } from './astar';
 
-const step = (
-  input: number[][],
-  x: number,
-  y: number,
-  sx: number,
-  sy: number,
-): number => {
-  const newInput = input[y][x] + sx + sy;
-  return newInput > 9 ? (newInput % 10) + 1 : newInput;
-};
-
 (async () => {
   const input = pipe(
     await readInput(15),
@@ -29,13 +18,9 @@ const step = (
     for (let x = 0; x < input.length; ++x) {
       for (let sy = 0; sy < 5; ++sy) {
         for (let sx = 0; sx < 5; ++sx) {
-          newInput[y + sy * input.length][x + sx * input.length] = step(
-            input,
-            x,
-            y,
-            sx,
-            sy,
-          );
+          let value = input[y][x] + sx + sy;
+          newInput[y + sy * input.length][x + sx * input.length] =
+            value > 9 ? (value % 10) + 1 : value;
         }
       }
     }
